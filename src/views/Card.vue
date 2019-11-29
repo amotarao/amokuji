@@ -48,7 +48,18 @@ export default {
         this.pageBId = id;
       }
       this.pageHistory.push(id);
+      this.$store.dispatch('kujis/addLog', {
+        type: 'pageHistory',
+        date: new Date(),
+        kuji: this.$route.params.kuji_id,
+        card: this.$route.params.card_id,
+        pageHistory: this.pageHistory,
+        user: this.$store.state.auth.user ? this.$store.state.auth.user.uid : null,
+      });
     },
+  },
+  async mounted() {
+    await this.$store.dispatch('auth/signIn');
   },
 };
 </script>

@@ -49,7 +49,16 @@ export default {
   },
   methods: {
     onActionClick(to, value) {
-      console.log(this.id, value);
+      this.$store.dispatch('kujis/addLog', {
+        type: 'action',
+        date: new Date(),
+        kuji: this.$route.params.kuji_id,
+        card: this.$route.params.card_id,
+        page: this.id,
+        to,
+        value,
+        user: this.$store.state.auth.user ? this.$store.state.auth.user.uid : null,
+      });
       this.$emit('to', to);
     },
   },
