@@ -1,10 +1,10 @@
 <template>
   <div class="card">
-    <transition name="page-fade">
-      <page-wrapper v-if="pageNum % 2 === 0" :page="pageA" @to="to" />
-    </transition>
-    <transition name="page-fade">
-      <page-wrapper v-if="pageNum % 2 === 1" :page="pageB" @to="to" />
+    <transition name="page-fade" mode="out-in">
+      <template v-for="page in pages">
+        <page-wrapper v-if="currentPageId === page.id && pageNum % 2" :key="`${page.id}-a`" :page="page" @to="to" />
+        <page-wrapper v-if="currentPageId === page.id && !(pageNum % 2)" :key="`${page.id}-b`" :page="page" @to="to" />
+      </template>
     </transition>
   </div>
 </template>
@@ -20,8 +20,6 @@ export default {
   data() {
     return {
       pageNum: 0,
-      pageAId: 'top',
-      pageBId: 'top',
       pageHistory: ['top'],
       kuji: {
         cards,
@@ -32,22 +30,17 @@ export default {
     card() {
       return this.kuji.cards.find(({ id }) => id === this.$route.params.card_id);
     },
-    pageA() {
-      return this.card.pages.find(page => page.id === this.pageAId);
+    pages() {
+      return this.card.pages;
     },
-    pageB() {
-      return this.card.pages.find(page => page.id === this.pageBId);
+    currentPageId() {
+      return this.pageHistory[this.pageHistory.length - 1];
     },
   },
   methods: {
     to(id) {
-      this.pageNum++;
-      if (this.pageNum % 2 === 0) {
-        this.pageAId = id;
-      } else {
-        this.pageBId = id;
-      }
       this.pageHistory.push(id);
+      this.pageNum++;
       this.$store.dispatch('kujis/addLog', {
         type: 'pageHistory',
         date: new Date(),
@@ -71,8 +64,8 @@ export default {
 }
 
 .page-fade-enter-active {
-  transition: all 0.8s ease-out 0.2s;
-  pointer-events: none;
+  transition: all 0.8s ease-out;
+  z-index: 1;
 }
 .page-fade-leave-active {
   transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
